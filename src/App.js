@@ -1,5 +1,5 @@
 import "./App.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Form from "./components/Form";
 import TodoList from "./components/TodoList";
 
@@ -9,6 +9,15 @@ function App() {
   const [todos, setTodos] = useState([]);
   const [status, setStatus] = useState("all");
   const [filteredTodos, setFilteredTodos] = useState([]);
+  // RUN ONCE when app starts
+  useEffect(() => {
+    getLocalTodos();
+  }, []);
+  // useEffect
+  useEffect(() => {
+    filterHandler();
+    saveLocalTodos();
+  }, [todos, status]);
   // Functions
   const filterHandler = () => {
     switch (status) {
@@ -23,6 +32,19 @@ function App() {
         break;
     }
   };
+  // Save to local storage
+  const saveLocalTodos = () => {
+    localStorage.setItem("todos", JSON.stringify(todos));
+  };
+
+  const getLocalTodos = () => {
+    if (localStorage.getItem("todos") === null) {
+      localStorage.setItem("todos", JSON.stringify([]));
+    } else {
+      let todoLocal = JSON.parse(localStorage.getItem("todos"));
+      setTodos(todoLocal);
+    }
+  };
   return (
     <div className="App">
       <header>Mitzi's Todo List</header>
@@ -33,7 +55,12 @@ function App() {
         setInputText={setInputText}
         setStatus={setStatus}
       />
-      <TodoList todos={todos} setTodos={setTodos} inputText={inputText} />
+      <TodoList
+        todos={todos}
+        setTodos={setTodos}
+        inputText={inputText}
+        filteredTodos={filteredTodos}
+      />
     </div>
   );
 }
